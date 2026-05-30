@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Read-Host -Prompt \"wait\")",
+      "PowerShell(python --version)",
+      "PowerShell(pip --version 2>&1)",
+      "PowerShell(python -c \"import sklearn; import flask; print\\('sklearn:', sklearn.__version__, '| flask:', flask.__version__\\)\" 2>&1)"
+    ]
+  }
+}

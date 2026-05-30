@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Зээлийн Скоринг</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 540px;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.45);
+    }
+
+    .logo { text-align: center; margin-bottom: 32px; }
+
+    .logo-icon {
+      width: 68px; height: 68px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.4);
+    }
+
+    h1 { color: #fff; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+
+    h1 span {
+      background: linear-gradient(90deg, #667eea, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle { color: rgba(255,255,255,0.4); font-size: 0.83rem; margin-top: 4px; }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      color: rgba(255,255,255,0.65);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px 15px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.97rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
+
+    input::placeholder { color: rgba(255,255,255,0.22); }
+    input:focus, select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+    }
+
+    select option { background: #1e1b4b; color: #fff; }
+
+    .input-wrap { position: relative; }
+    .input-wrap .prefix {
+      position: absolute;
+      left: 13px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,0.3);
+      font-size: 0.88rem;
+      pointer-events: none;
+    }
+    .input-wrap input { padding-left: 32px; }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 14px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,0.4);
+      pointer-events: none;
+      font-size: 0.9rem;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.35);
+      letter-spacing: 0.3px;
+    }
+    button[type="submit"]:hover  { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 12px 30px rgba(102,126,234,0.45); }
+    button[type="submit"]:active { transform: translateY(0); }
+    button[type="submit"]:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    /* Result */
+    #result {
+      display: none;
+      margin-top: 28px;
+      border-radius: 18px;
+      padding: 28px 24px 22px;
+      text-align: center;
+      border: 1px solid transparent;
+      animation: fadeUp 0.4s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    #result.approved { background: rgba(16,185,129,0.1);  border-color: rgba(16,185,129,0.3); }
+    #result.review   { background: rgba(245,158,11,0.1);  border-color: rgba(245,158,11,0.3); }
+    #result.rejected { background: rgba(239,68,68,0.1);   border-color: rgba(239,68,68,0.3); }
+
+    .result-icon { font-size: 2.6rem; margin-bottom: 10px; line-height: 1; }
+
+    .result-score {
+      font-size: 3.6rem;
+      font-weight: 800;
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .result-score-sub { font-size: 0.78rem; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
+
+    .approved .result-score { color: #10b981; }
+    .review   .result-score { color: #f59e0b; }
+    .rejected .result-score { color: #ef4444; }
+
+    .result-badge {
+      display: inline-block;
+      padding: 5px 16px;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .approved .result-badge { background: rgba(16,185,129,0.2);  color: #34d399; }
+    .review   .result-badge { background: rgba(245,158,11,0.2);  color: #fbbf24; }
+    .rejected .result-badge { background: rgba(239,68,68,0.2);   color: #f87171; }
+
+    .result-msg { font-size: 0.86rem; color: rgba(255,255,255,0.5); }
+
+    /* Score bar */
+    .score-bar-wrap {
+      margin: 16px 0 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      height: 7px;
+      overflow: hidden;
+    }
+    .score-bar {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.9s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+    .approved .score-bar { background: linear-gradient(90deg, #10b981, #34d399); }
+    .review   .score-bar { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .rejected .score-bar { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    .score-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.25);
+      margin-top: 4px;
+    }
+
+    /* Error */
+    .error-msg {
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 10px;
+      color: #f87171;
+      font-size: 0.86rem;
+      text-align: center;
+      display: none;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">💳</div>
+      <h1>Зээлийн <span>Скоринг</span></h1>
+      <p class="subtitle">Таны зээлийн чадварыг хурдан, бодитоор үнэлнэ</p>
+    </div>
+
+    <form id="loanForm">
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Сарын цалин</label>
+          <div class="input-wrap">
+            <span class="prefix">₮</span>
+            <input type="number" name="salary" placeholder="2,000,000" min="1" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Хүссэн зээлийн дүн</label>
+          <div class="input-wrap">
+            <span class="prefix">₮</span>
+            <input type="number" name="amount" placeholder="10,000,000" min="1" required />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Ажил эрхлэлтийн төрөл</label>
+        <div class="select-wrap">
+          <select name="employment" required>
+            <option value="" disabled selected>Сонгоно уу...</option>
+            {% for emp in emp_types %}
+            <option value="{{ emp }}">{{ emp }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Ажилласан жил</label>
+        <input type="number" name="years" placeholder="5" min="0" step="0.5" required />
+      </div>
+
+      <button type="submit" id="submitBtn">Скор тооцох</button>
+    </form>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div id="result">
+      <div class="result-icon"   id="resultIcon"></div>
+      <div class="result-score"  id="resultScore"></div>
+      <div class="result-score-sub">/ 1000</div>
+      <div class="result-badge"  id="resultLabel"></div>
+      <div class="score-bar-wrap">
+        <div class="score-bar" id="scoreBar"></div>
+      </div>
+      <div class="score-labels">
+        <span>0</span><span>450 — Татгалзах хил</span><span>700 — Зөвшөөрөх хил</span><span>1000</span>
+      </div>
+      <div class="result-msg" id="resultMsg"></div>
+    </div>
+  </div>
+
+  <script>
+    const form    = document.getElementById('loanForm');
+    const btn     = document.getElementById('submitBtn');
+    const resultEl = document.getElementById('result');
+    const errorEl  = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.style.display = 'none';
+      resultEl.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Тооцож байна...';
+
+      try {
+        const res  = await fetch('/predict', { method: 'POST', body: new FormData(form) });
+        const json = await res.json();
+        if (!res.ok) { showError(json.error || 'Алдаа гарлаа'); return; }
+        showResult(json);
+      } catch {
+        showError('Сервертэй холбогдож чадсангүй.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Скор тооцох';
+      }
+    });
+
+    function showResult({ score, status, label, message }) {
+      const icons = { approved: '✅', review: '⚠️', rejected: '❌' };
+
+      resultEl.className = status;
+      resultEl.style.display = 'block';
+
+      document.getElementById('resultIcon').textContent  = icons[status];
+      document.getElementById('resultScore').textContent = score;
+      document.getElementById('resultLabel').textContent = label;
+      document.getElementById('resultMsg').textContent   = message;
+
+      const bar = document.getElementById('scoreBar');
+      bar.style.width = '0%';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        bar.style.width = (score / 10) + '%';
+      }));
+    }
+
+    function showError(msg) {
+      errorEl.textContent = '⚠ ' + msg;
+      errorEl.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
